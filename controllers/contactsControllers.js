@@ -7,7 +7,7 @@ import {
 
 export const getAllContacts = async (req, res, next) => {
   try {
-    const result = await contactsService.getAllContacts();
+    const result = await contactsService.getContactsList();
 
     res.json(result);
   } catch (error) {
