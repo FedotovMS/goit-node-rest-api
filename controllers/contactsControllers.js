@@ -45,9 +45,7 @@ const updateContact = async (req, res) => {
 
 const updateStatusContact = async (req, res) => {
   const { id } = req.params;
-  const result = await contactsService.patchFavorite(id, req.body, {
-    new: true,
-  });
+  const result = await contactsService.patchFavorite(id, req.body);
 
   if (!result) {
     throw HttpError(404);

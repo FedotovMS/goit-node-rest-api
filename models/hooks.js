@@ -4,7 +4,7 @@ export const handleSaveError = (error, data, next) => {
 };
 
 export const saveUpdatedSettings = function (next) {
-  this.getOptions.new = true;
-  this.getOptions.runValidators = true;
+  this.options.new = true;
+  this.options.runValidators = true;
   next();
 };
