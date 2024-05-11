@@ -1,16 +1,25 @@
 import Contact from "../models/Contact.js";
 
 function getContactsList() {
-  Contact.find();
+  return Contact.find({});
 }
 
-function getContactById(contactId) {}
+async function getContactById(contactId) {
+  const result = await Contact.findById(contactId);
+  return result;
+}
 
-function removeContact(contactId) {}
+function removeContact(contactId) {
+  return Contact.findByIdAndDelete(contactId);
+}
 
-function updateContactById(id, data) {}
+function updateContactById(id, data) {
+  return Contact.findByIdAndUpdate(id, data);
+}
 
-function addContact(data) {}
+function addContact(data) {
+  return Contact.create(data);
+}
 
 export {
   getContactsList,

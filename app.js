@@ -4,6 +4,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv/config";
 
+import Contact from "./models/Contact.js";
+
 import contactsRouter from "./routes/contactsRouter.js";
 
 const { DB_HOST, PORT = 3000 } = process.env;
@@ -28,6 +30,7 @@ app.use((err, req, res, next) => {
 mongoose
   .connect(DB_HOST)
   .then(() => {
+    console.log("Database connection successful");
     app.listen(PORT, () => {
       console.log(`Server is running. Use our API on port: ${PORT}`);
     });
@@ -36,3 +39,25 @@ mongoose
     console.log(error.message);
     process.exit(1);
   });
+
+// Check if responce is not empty
+//
+// mongoose
+//   .connect(DB_HOST)
+//   .then(async () => {
+//     const contacts = await Contact.find();
+
+//     if (contacts.length === 0) {
+//       console.log("Response is empty.");
+//     } else {
+//       console.log("Response is not empty.");
+//     }
+
+//     app.listen(PORT, () => {
+//       console.log(`Server is running. Use our API on port: ${PORT}`);
+//     });
+//   })
+//   .catch((error) => {
+//     console.log(error.message);
+//     process.exit(1);
+//   });

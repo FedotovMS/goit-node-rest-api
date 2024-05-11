@@ -9,6 +9,7 @@ export const createContactSchema = Joi.object({
       "Phone number must be in the format (XXX) XXX-XXXX, XXX-XXX-XXXX, or XXXXXXXXXX"
     )
     .required(),
+  favorite: Joi.boolean(),
 });
 
 export const updateContactSchema = Joi.object({
@@ -19,4 +20,5 @@ export const updateContactSchema = Joi.object({
     .message(
       "Phone number must be in the format (XXX) XXX-XXXX, XXX-XXX-XXXX, or XXXXXXXXXX"
     ),
+  favorite: Joi.boolean(),
 });
