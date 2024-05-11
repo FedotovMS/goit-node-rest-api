@@ -43,10 +43,23 @@ const updateContact = async (req, res) => {
   res.status(200).json(result);
 };
 
+const updateStatusContact = async (req, res) => {
+  const { id } = req.params;
+  const result = await contactsService.patchFavorite(id, req.body, {
+    new: true,
+  });
+
+  if (!result) {
+    throw HttpError(404);
+  }
+  res.json(result);
+};
+
 export default {
   getAllContacts: ctrlWrapper(getAllContacts),
   getOneContact: ctrlWrapper(getOneContact),
   createContact: ctrlWrapper(createContact),
   deleteContact: ctrlWrapper(deleteContact),
   updateContact: ctrlWrapper(updateContact),
+  updateStatusContact: ctrlWrapper(updateStatusContact),
 };

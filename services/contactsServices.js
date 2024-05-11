@@ -21,10 +21,15 @@ function addContact(data) {
   return Contact.create(data);
 }
 
+function patchFavorite(id, data) {
+  return Contact.findByIdAndUpdate(id, data);
+}
+
 export {
   getContactsList,
   getContactById,
   removeContact,
   addContact,
   updateContactById,
+  patchFavorite,
 };
