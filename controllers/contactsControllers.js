@@ -3,14 +3,26 @@ import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import * as contactsService from "../services/contactsServices.js";
 
 const getAllContacts = async (req, res) => {
-  const result = await contactsService.getContactsList();
+  const { _id: owner } = req.user;
+  const filter = { owner };
+  const fields = "-createdAt -updatedAt";
+  const skip = (page - 1) * limit;
+  const settings = { skip, limit };
+  const total = await contactsService.countContacts(filter);
+  const result = await contactsService.getContactsList({
+    filter,
+    fields,
+    settings,
+  });
 
-  res.json(result);
+  res.json({ total, result });
 };
 
 const getOneContact = async (req, res) => {
-  const { id } = req.params;
-  const result = await contactsService.getContactById(id);
+  const { id: _id } = req.params;
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 20 } = req.query;
+  const result = await contactsService.getContactById({ _id, owner });
 
   if (!result) {
     throw HttpError(404);
@@ -19,14 +31,16 @@ const getOneContact = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-  const result = await contactsService.addContact(req.body);
+  const { _id: owner } = req.user;
+  const result = await contactsService.addContact(...req.body, owner);
 
   res.status(201).json(result);
 };
 
 const deleteContact = async (req, res) => {
-  const { id } = req.params;
-  const result = await contactsService.removeContact(id);
+  const { id: _id } = req.params;
+  const { _id: owner } = req.user;
+  const result = await contactsService.removeContact({ _id, owner });
 
   if (!result) {
     throw HttpError(404);
@@ -35,8 +49,12 @@ const deleteContact = async (req, res) => {
 };
 
 const updateContact = async (req, res) => {
-  const { id } = req.params;
-  const result = await contactsService.updateContactById(id, req.body);
+  const { id: _id } = req.params;
+  const { _id: owner } = req.user;
+  const result = await contactsService.updateContactById(
+    { _id, owner },
+    req.body
+  );
   if (!result) {
     throw HttpError(404);
   }
