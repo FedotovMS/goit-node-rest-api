@@ -5,19 +5,15 @@ import { emailRegexp } from "../constants/user-constants.js";
 
 const userSchema = new Schema(
   {
-    username: {
-      type: String,
-      required: true,
-    },
     email: {
       type: String,
       unique: true,
+      required: [true, "Password is required"],
       match: emailRegexp,
-      required: true,
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "Password is required"],
     },
     subscription: {
       type: String,
@@ -26,6 +22,7 @@ const userSchema = new Schema(
     },
     token: {
       type: String,
+      default: null,
     },
   },
   { versionKey: false, timestamp: true }

@@ -5,8 +5,10 @@ import validateBody from "../decorators/validateBody.js";
 import {
   userRegisterSchema,
   userLoginSchema,
+  userSubscriptionSchema,
 } from "../schemas/usersSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
+import isValidId from "../middlewares/isValidId.js";
 
 const authRouter = express.Router();
 
@@ -27,5 +29,15 @@ authRouter.post(
 
 authRouter.get("/current", authenticate, authControllers.getCurrent);
 
-authRouter.post("/sigout", authenticate, authControllers.logout);
+authRouter.post("/logout", authenticate, authControllers.logout);
+
+authRouter.patch(
+  "/:id",
+  authenticate,
+  isValidId,
+  isEmptyBody,
+  validateBody(userSubscriptionSchema),
+  authControllers.updateSubscription
+);
+
 export default authRouter;

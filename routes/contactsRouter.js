@@ -39,7 +39,7 @@ contactsRouter.patch(
   "/:id/favorite",
   isValidId,
   validateBody(updateFavoriteSchema),
-  contactsControllers.updateStatusContact
+  contactsControllers.updateContact
 );
 
 export default contactsRouter;

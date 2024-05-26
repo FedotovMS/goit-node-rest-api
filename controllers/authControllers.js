@@ -16,8 +16,10 @@ const register = async (req, res) => {
   const newUser = await authServices.saveUser(req.body);
 
   res.status(201).json({
-    username: newUser.username,
-    email: newUser.email,
+    user: {
+      email: newUser.email,
+      subscription: newUser.subscription,
+    },
   });
 };
 
@@ -33,7 +35,7 @@ const login = async (req, res) => {
     throw HttpError(401, "Email or password invalid");
   }
 
-  const { _id: id } = user;
+  const { _id: id, subscription } = user;
   const payload = {
     id,
   };
@@ -43,22 +45,35 @@ const login = async (req, res) => {
 
   res.json({
     token,
+    user: {
+      email,
+      subscription,
+    },
   });
 };
 
 const getCurrent = (req, res) => {
-  const { username, email } = req.user;
+  const { subscription, email } = req.user;
   res.json({
-    username,
     email,
+    subscription,
   });
 };
 
 const logout = async (req, res) => {
   const { _id } = req.user;
   await authServices.updateUser({ _id }, { token: "" });
+  res.status(204).json();
+};
+
+const updateSubscription = async (req, res) => {
+  const { _id } = req.user;
+  const { subscription } = req.body;
+  const user = await authServices.updateUser({ _id }, { subscription });
+
   res.json({
-    message: "No Content",
+    email: user.email,
+    subscription,
   });
 };
 
@@ -67,4 +82,5 @@ export default {
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
+  updateSubscription: ctrlWrapper(updateSubscription),
 };
