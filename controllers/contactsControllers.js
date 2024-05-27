@@ -6,8 +6,10 @@ const getAllContacts = async (req, res) => {
   const { _id: owner } = req.user;
   const filter = { owner };
   const fields = "";
+  const { page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
   const settings = { skip, limit };
+
   const total = await contactsService.countContacts(filter);
 
   const result = await contactsService.getContactsList({
