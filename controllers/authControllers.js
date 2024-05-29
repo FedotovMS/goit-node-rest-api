@@ -3,7 +3,10 @@ import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import comparePassword from "../helpers/comparePassword.js";
 import { createToken } from "../helpers/jwt.js";
+import path from "path";
+import Jimp from "jimp";
 
+const avatarsPath = path.resolve("public", "avatars");
 const register = async (req, res) => {
   const { email } = req.body;
 
@@ -19,6 +22,7 @@ const register = async (req, res) => {
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -57,6 +61,7 @@ const getCurrent = (req, res) => {
   res.json({
     email,
     subscription,
+    avatarURL,
   });
 };
 
@@ -77,10 +82,29 @@ const updateSubscription = async (req, res) => {
   });
 };
 
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: oldPath, filename } = req.file;
+  const image = await jimp.read(oldPath);
+  await image.scaleToFit(250, 250);
+
+  const newPath = path.join(avatarsPath, filename);
+  await image.writeAsync(newPath);
+  await fs.unlink(oldPath);
+  const avatarURL = path.join("avatars", filename);
+  const user = await authServices.updateUser({ _id }, { avatarURL });
+
+  res.json({
+    email: user.email,
+    avatarURL: user.avatarURL,
+  });
+};
+
 export default {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
   updateSubscription: ctrlWrapper(updateSubscription),
+  updateAvatar: ctrlWrapper(updateAvatar),
 };
