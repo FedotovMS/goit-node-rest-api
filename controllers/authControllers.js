@@ -82,7 +82,7 @@ const updateSubscription = async (req, res) => {
   });
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   const { _id } = req.user;
   const { path: oldPath, filename } = req.file;
   const image = await jimp.read(oldPath);
@@ -92,10 +92,10 @@ const updateAvatar = async (req, res) => {
   await image.writeAsync(newPath);
   await fs.unlink(oldPath);
   const avatarURL = path.join("avatars", filename);
+
   const user = await authServices.updateUser({ _id }, { avatarURL });
 
   res.json({
-    email: user.email,
     avatarURL: user.avatarURL,
   });
 };
