@@ -88,7 +88,7 @@ const updateAvatar = async (req, res) => {
   }
   const { _id } = req.user;
   const { path: oldPath, filename } = req.file;
-  const image = await jimp.read(oldPath);
+  const image = await Jimp.read(oldPath);
   await image.scaleToFit(250, 250);
 
   const newPath = path.join(avatarsPath, filename);

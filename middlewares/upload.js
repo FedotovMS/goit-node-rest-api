@@ -16,7 +16,7 @@ const limits = {
   filesize: 1024 * 1024 * 5,
 };
 
-const supportedFormats = ["jpeg", "jpg", "png", "bmp", "tiff", "gif"];
+const supportedFormats = ["jpeg", "jpg", "png", "bmp", "tiff", "gif", "webp"];
 
 const fileFilter = (req, file, callback) => {
   const extension = file.originalname.split(".").pop().toLowerCase();
