@@ -83,21 +83,28 @@ const updateSubscription = async (req, res) => {
 };
 
 const updateAvatar = async (req, res, next) => {
-  const { _id } = req.user;
-  const { path: oldPath, filename } = req.file;
-  const image = await jimp.read(oldPath);
-  await image.scaleToFit(250, 250);
+  try {
+    if (!req.file) {
+      next(HttpError(400, "No file provided for upload"));
+    }
+    const { _id } = req.user;
+    const { path: oldPath, filename } = req.file;
+    const image = await jimp.read(oldPath);
+    await image.scaleToFit(250, 250);
 
-  const newPath = path.join(avatarsPath, filename);
-  await image.writeAsync(newPath);
-  await fs.unlink(oldPath);
-  const avatarURL = path.join("avatars", filename);
+    const newPath = path.join(avatarsPath, filename);
+    await image.writeAsync(newPath);
+    await fs.unlink(oldPath);
+    const avatarURL = path.join("avatars", filename);
 
-  const user = await authServices.updateUser({ _id }, { avatarURL });
+    const user = await authServices.updateUser({ _id }, { avatarURL });
 
-  res.json({
-    avatarURL: user.avatarURL,
-  });
+    res.json({
+      avatarURL: user.avatarURL,
+    });
+  } catch (error) {
+    next();
+  }
 };
 
 export default {

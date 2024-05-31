@@ -1,7 +1,7 @@
 import express from "express";
 import authControllers from "../controllers/authControllers.js";
 import isEmptyBody from "../middlewares/isEmptyBody.js";
-import isFileUploaded from "../middlewares/isFileUploaded.js";
+
 import validateBody from "../decorators/validateBody.js";
 import {
   userRegisterSchema,
@@ -45,7 +45,6 @@ authRouter.patch(
 authRouter.patch(
   "/avatars",
   authenticate,
-  isFileUploaded,
   upload.single("avatar"),
   authControllers.updateAvatar
 );
