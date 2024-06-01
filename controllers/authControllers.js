@@ -5,8 +5,10 @@ import comparePassword from "../helpers/comparePassword.js";
 import { createToken } from "../helpers/jwt.js";
 import path from "path";
 import Jimp from "jimp";
+import gravatar from "gravatar";
 
 const avatarsPath = path.resolve("public", "avatars");
+
 const register = async (req, res) => {
   const { email } = req.body;
 
@@ -15,8 +17,9 @@ const register = async (req, res) => {
   if (user) {
     throw HttpError(409, "Email already in use");
   }
+  const avatarURL = gravatar.url(email, { s: "250", d: "mp" });
 
-  const newUser = await authServices.saveUser(req.body);
+  const newUser = await authServices.saveUser({ ...req.body, avatarURL });
 
   res.status(201).json({
     user: {
@@ -82,25 +85,31 @@ const updateSubscription = async (req, res) => {
   });
 };
 
-const updateAvatar = async (req, res) => {
-  if (!req.file) {
-    throw HttpError(400, "No file provided for upload");
+const updateAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw HttpError(400, "No file provided for upload");
+    }
+    const { _id } = req.user;
+    const { path: tempPath, filename } = req.file;
+    const image = await Jimp.read(tempPath);
+
+    await image.resize(250, 250);
+
+    const newPath = path.join(avatarsPath, filename);
+
+    await image.writeAsync(newPath);
+    await fs.unlink(tempPath);
+    const avatarURL = path.join("avatars", filename);
+
+    const user = await authServices.updateUser({ _id }, { avatarURL });
+
+    res.json({
+      avatarURL: user.avatarURL,
+    });
+  } catch (error) {
+    next(error);
   }
-  const { _id } = req.user;
-  const { path: oldPath, filename } = req.file;
-  const image = await Jimp.read(oldPath);
-  await image.scaleToFit(250, 250);
-
-  const newPath = path.join(avatarsPath, filename);
-  await image.writeAsync(newPath);
-  await fs.unlink(oldPath);
-  const avatarURL = path.join("avatars", filename);
-
-  const user = await authServices.updateUser({ _id }, { avatarURL });
-
-  res.json({
-    avatarURL: user.avatarURL,
-  });
 };
 
 export default {

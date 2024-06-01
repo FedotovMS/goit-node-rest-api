@@ -16,11 +16,11 @@ const limits = {
   filesize: 1024 * 1024 * 5,
 };
 
-const supportedFormats = ["jpeg", "jpg", "png", "bmp", "tiff", "gif", "webp"];
+const imageFormats = ["jpg", "png", "webp", "gif"];
 
 const fileFilter = (req, file, callback) => {
-  const extension = file.originalname.split(".").pop().toLowerCase();
-  if (!supportedFormats.includes(extension)) {
+  const extension = file.originalname.split(".").pop();
+  if (!imageFormats.includes(extension)) {
     return callback(HttpError(400, `Unsupported file type: .${extension}`));
   }
   callback(null, true);
