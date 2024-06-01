@@ -91,7 +91,12 @@ const updateAvatar = async (req, res, next) => {
       throw HttpError(400, "No file provided for upload");
     }
     const { _id } = req.user;
+    console.log(`User ID: ${_id}`);
     const { path: tempPath, filename } = req.file;
+
+    console.log(`Temp Path: ${tempPath}`);
+    console.log(`Filename: ${filename}`);
+
     const image = await Jimp.read(tempPath);
 
     await image.resize(250, 250);
@@ -102,10 +107,10 @@ const updateAvatar = async (req, res, next) => {
     await fs.unlink(tempPath);
     const avatarURL = path.join("avatars", filename);
 
-    const user = await authServices.updateUser({ _id }, { avatarURL });
+    await authServices.updateUser({ _id }, { avatarURL });
 
     res.json({
-      avatarURL: user.avatarURL,
+      avatarURL,
     });
   } catch (error) {
     next(error);
