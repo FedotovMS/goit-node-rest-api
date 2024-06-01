@@ -65,7 +65,7 @@ const verifyEmail = async (req, res, next) => {
   }
 };
 
-const sendMoreMails = async (req, res, next) => {
+const resendVerifyEmail = async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await authServices.findUser({ email });
@@ -98,6 +98,9 @@ const login = async (req, res) => {
   const user = await authServices.findUser({ email });
   if (!user) {
     throw HttpError(401, "Email or password invalid");
+  }
+  if (!user.verify) {
+    throw HttpError(401, "Email is not verified");
   }
   const comparedPassword = await comparePassword(password, user.password);
 
@@ -192,5 +195,5 @@ export default {
   logout: ctrlWrapper(logout),
   updateSubscription: ctrlWrapper(updateSubscription),
   updateAvatar: ctrlWrapper(updateAvatar),
-  sendMoreMails: ctrlWrapper(sendMoreMails),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
 };
