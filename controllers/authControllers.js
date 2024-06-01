@@ -103,7 +103,9 @@ const updateAvatar = async (req, res, next) => {
 
     await image.resize(250, 250);
 
-    const newPath = path.join(avatarsPath, filename);
+    const uniqueFilename = `${_id}_${filename}`;
+
+    const newPath = path.join(avatarsPath, uniqueFilename);
 
     await image.writeAsync(newPath);
     await fs.unlink(oldPath);
