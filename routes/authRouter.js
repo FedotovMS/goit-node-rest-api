@@ -30,6 +30,13 @@ authRouter.post(
 );
 
 authRouter.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  authControllers.updateAvatar
+);
+
+authRouter.patch(
   "/:id",
   authenticate,
   isValidId,
@@ -38,12 +45,6 @@ authRouter.patch(
   authControllers.updateSubscription
 );
 
-authRouter.patch(
-  "/avatars",
-  authenticate,
-  upload.single("avatar"),
-  authControllers.updateAvatar
-);
 authRouter.get("/current", authenticate, authControllers.getCurrent);
 
 authRouter.post("/logout", authenticate, authControllers.logout);

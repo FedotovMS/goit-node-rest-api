@@ -3,6 +3,7 @@ import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import comparePassword from "../helpers/comparePassword.js";
 import { createToken } from "../helpers/jwt.js";
+import fs from "fs/promises";
 import path from "path";
 import Jimp from "jimp";
 import gravatar from "gravatar";
@@ -43,6 +44,7 @@ const login = async (req, res) => {
   }
 
   const { _id: id, subscription } = user;
+
   const payload = {
     id,
   };
@@ -91,20 +93,20 @@ const updateAvatar = async (req, res, next) => {
       throw HttpError(400, "No file provided for upload");
     }
     const { _id } = req.user;
-    console.log(`User ID: ${_id}`);
-    const { path: tempPath, filename } = req.file;
+    const { path: oldPath, filename } = req.file;
 
-    console.log(`Temp Path: ${tempPath}`);
+    console.log(`User ID: ${_id}`);
+    console.log(`Temp Path: ${oldPath}`);
     console.log(`Filename: ${filename}`);
 
-    const image = await Jimp.read(tempPath);
+    const image = await Jimp.read(oldPath);
 
     await image.resize(250, 250);
 
     const newPath = path.join(avatarsPath, filename);
 
     await image.writeAsync(newPath);
-    await fs.unlink(tempPath);
+    await fs.unlink(oldPath);
     const avatarURL = path.join("avatars", filename);
 
     await authServices.updateUser({ _id }, { avatarURL });
