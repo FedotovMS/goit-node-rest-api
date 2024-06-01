@@ -29,9 +29,12 @@ authRouter.post(
   authControllers.login
 );
 
-authRouter.get("/current", authenticate, authControllers.getCurrent);
-
-authRouter.post("/logout", authenticate, authControllers.logout);
+authRouter.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  authControllers.updateAvatar
+);
 
 authRouter.patch(
   "/:id",
@@ -42,11 +45,8 @@ authRouter.patch(
   authControllers.updateSubscription
 );
 
-authRouter.patch(
-  "/avatars",
-  authenticate,
-  upload.single("avatar"),
-  authControllers.updateAvatar
-);
+authRouter.get("/current", authenticate, authControllers.getCurrent);
+
+authRouter.post("/logout", authenticate, authControllers.logout);
 
 export default authRouter;
