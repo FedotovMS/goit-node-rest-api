@@ -1,6 +1,7 @@
 import express from "express";
 import authControllers from "../controllers/authControllers.js";
 import isEmptyBody from "../middlewares/isEmptyBody.js";
+
 import validateBody from "../decorators/validateBody.js";
 import {
   userRegisterSchema,
@@ -9,6 +10,7 @@ import {
 } from "../schemas/usersSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
 import isValidId from "../middlewares/isValidId.js";
+import upload from "../middlewares/upload.js";
 
 const authRouter = express.Router();
 
@@ -38,6 +40,13 @@ authRouter.patch(
   isEmptyBody,
   validateBody(userSubscriptionSchema),
   authControllers.updateSubscription
+);
+
+authRouter.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  authControllers.updateAvatar
 );
 
 export default authRouter;
