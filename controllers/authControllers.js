@@ -30,19 +30,18 @@ const register = async (req, res) => {
     verificationToken,
   });
 
-  const verifyEmail = {
+  const verificationLetter = {
     to: email,
     subject: "Verify email",
     html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${verificationToken}">Verify your email</a>`,
   };
 
-  await sendEmail(verifyEmail);
+  await sendEmail(verificationLetter);
 
   res.status(201).json({
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
-      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -50,19 +49,44 @@ const register = async (req, res) => {
 const verifyEmail = async (req, res, next) => {
   try {
     const { verificationToken } = req.params;
-    const user = await user.findOne({ verificationToken });
+    const user = await authServices.findUser({ verificationToken });
     if (!user) {
       throw HttpError(404);
     }
-    await authServices.updateUser(
-      { _id: user._id },
-      {
-        verify: true,
-        verificationToken: null,
-      }
-    );
+    await authServices.updateUser(user._id, {
+      verify: true,
+      verificationToken: null,
+    });
     res.json({
       message: "Verification successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sendMoreMails = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await authServices.findUser({ email });
+    if (!user) {
+      throw HttpError(400, "missing required field email");
+    }
+
+    if (user.verify) {
+      throw HttpError(400, "Verification has already been passed");
+    }
+
+    const verificationLetter = {
+      to: email,
+      subject: "Verify email",
+      html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${user.verificationToken}">Verify your email</a>`,
+    };
+
+    await sendEmail(verificationLetter);
+
+    res.json({
+      message: "Verification email sent",
     });
   } catch (error) {
     next(error);
@@ -168,4 +192,5 @@ export default {
   logout: ctrlWrapper(logout),
   updateSubscription: ctrlWrapper(updateSubscription),
   updateAvatar: ctrlWrapper(updateAvatar),
+  sendMoreMails: ctrlWrapper(sendMoreMails),
 };

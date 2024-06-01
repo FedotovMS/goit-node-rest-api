@@ -7,6 +7,7 @@ import {
   userRegisterSchema,
   userLoginSchema,
   userSubscriptionSchema,
+  userEmailSchema,
 } from "../schemas/usersSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
 import isValidId from "../middlewares/isValidId.js";
@@ -23,6 +24,12 @@ authRouter.post(
 );
 
 authRouter.get("/verify/:verificationToken", authControllers.verifyEmail);
+
+authRouter.post(
+  "/verify",
+  validateBody(userEmailSchema),
+  authControllers.sendMoreMails
+);
 
 authRouter.post(
   "/login",
