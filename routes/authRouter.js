@@ -22,6 +22,8 @@ authRouter.post(
   authControllers.register
 );
 
+authRouter.get("/verify/:verificationToken", authControllers.verifyEmail);
+
 authRouter.post(
   "/login",
   isEmptyBody,

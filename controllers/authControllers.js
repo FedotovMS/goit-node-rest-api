@@ -7,6 +7,8 @@ import fs from "fs/promises";
 import path from "path";
 import Jimp from "jimp";
 import gravatar from "gravatar";
+import { nanoid } from "nanoid";
+import sendEmail from "../helpers/sendEmail.js";
 
 const avatarsPath = path.resolve("public", "avatars");
 
@@ -18,9 +20,23 @@ const register = async (req, res) => {
   if (user) {
     throw HttpError(409, "Email already in use");
   }
+  const verificationToken = nanoid();
+
   const avatarURL = gravatar.url(email, { s: "250", d: "mp" });
 
-  const newUser = await authServices.saveUser({ ...req.body, avatarURL });
+  const newUser = await authServices.saveUser({
+    ...req.body,
+    avatarURL,
+    verificationToken,
+  });
+
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${verificationToken}">Verify your email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
 
   res.status(201).json({
     user: {
@@ -29,6 +45,28 @@ const register = async (req, res) => {
       avatarURL: newUser.avatarURL,
     },
   });
+};
+
+const verifyEmail = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
+    const user = await user.findOne({ verificationToken });
+    if (!user) {
+      throw HttpError(404);
+    }
+    await authServices.updateUser(
+      { _id: user._id },
+      {
+        verify: true,
+        verificationToken: null,
+      }
+    );
+    res.json({
+      message: "Verification successful",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 const login = async (req, res) => {
@@ -124,6 +162,7 @@ const updateAvatar = async (req, res, next) => {
 
 export default {
   register: ctrlWrapper(register),
+  verifyEmail: ctrlWrapper(verifyEmail),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
