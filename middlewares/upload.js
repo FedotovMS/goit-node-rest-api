@@ -1,5 +1,6 @@
 import multer from "multer";
 import path from "path";
+import HttpError from "../helpers/HttpError.js";
 
 const destination = path.resolve("tmp");
 
@@ -21,7 +22,12 @@ const imageFormats = ["jpg", "png", "webp", "gif"];
 const fileFilter = (req, file, callback) => {
   const extension = file.originalname.split(".").pop();
   if (!imageFormats.includes(extension)) {
-    return callback(HttpError(400, `Unsupported file type: .${extension}`));
+    return callback(
+      HttpError(
+        400,
+        `.${extension} is not supported. We support "jpg", "png", "webp", "gif" only`
+      )
+    );
   }
   callback(null, true);
 };
